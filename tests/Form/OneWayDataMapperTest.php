@@ -2,6 +2,8 @@
 
 namespace Solido\DataMapper\Tests\Form;
 
+use LogicException;
+use Solido\DataMapper\Form\UnstructuredType;
 use Solido\DataTransformers\Exception\TransformationFailedException;
 use Solido\DataMapper\Form\CollectionType;
 use Solido\DataMapper\Form\FormTypeExtension;
@@ -288,11 +290,47 @@ class OneWayDataMapperTest extends TypeTestCase
         ];
     }
 
+    public function testMapDataToFormsUsingGetCallbackOptionOnCompoundForm(): void
+    {
+        $person = new DummyPerson('John Doe');
+        $config = new FormConfigBuilder('person', null, $this->dispatcher, [
+            'getter' => static function () {
+                return ['name' => 'Jack Dow'];
+            },
+        ]);
+
+        $config->setCompound(true);
+        $config->setDataMapper(new OneWayDataMapper());
+
+        $form = new Form($config);
+        $this->mapper->mapDataToForms($person, new \ArrayIterator([$form]));
+
+        self::assertSame('Jack Dow', $form->getData()['name']);
+    }
+
+    public function testMapDataToFormsShouldIgnoreGettersOnNonCompoundForms(): void
+    {
+        $person = new DummyPerson('John Doe');
+        $config = new FormConfigBuilder('person', null, $this->dispatcher, [
+            'getter' => static function () {
+                return ['name' => 'Jack Dow'];
+            },
+        ]);
+
+        $form = new Form($config);
+        $this->mapper->mapDataToForms($person, new \ArrayIterator([$form]));
+
+        self::assertNull($form->getData());
+    }
+
     public function testMapFormsToDataUsingSetCallbackOption(): void
     {
         $person = new DummyPerson('John Doe');
 
         $config = new FormConfigBuilder('name', null, $this->dispatcher, [
+            'getter' => static function () {
+                throw new LogicException('This should not be called');
+            },
             'setter' => static function (DummyPerson $person, $name) {
                 $person->rename($name);
             },

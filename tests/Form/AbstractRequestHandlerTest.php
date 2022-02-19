@@ -146,7 +146,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         $form->add($this->createForm('param1'));
         $form->add($this->createForm('param2'));
 
-        $this->setRequestData($method, $requestData = [
+        $this->setRequestData($method, [
             'param1' => 'submitted value',
             'paramx' => 'submitted value',
         ]);
