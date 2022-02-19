@@ -45,9 +45,9 @@ class DataMapperFactory
      * @param mixed $target
      * @param array<string, mixed> $options
      */
-    public function createFormBuilderMapper(string $value, $target, array $options = []): DataMapperInterface
+    public function createFormBuilderMapper(string $formType, $target, array $options = []): DataMapperInterface
     {
-        $builder = $this->formFactory->createNamedBuilder('', $value, $target, $options);
+        $builder = $this->formFactory->createNamedBuilder('', $formType, $target, $options);
         $builder->setDataMapper(new OneWayDataMapper());
 
         return $this->createFormMapper($builder->getForm());
