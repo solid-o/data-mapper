@@ -48,6 +48,8 @@ final class RequestHandler implements RequestHandlerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param mixed $request
      */
     public function handleRequest(FormInterface $form, $request = null): void
     {
@@ -128,6 +130,8 @@ final class RequestHandler implements RequestHandlerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param mixed $data
      */
     public function isFileUpload($data): bool
     {
