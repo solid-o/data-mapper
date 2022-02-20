@@ -19,8 +19,9 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\Form\RequestHandlerInterface;
 use Symfony\Component\Form\Util\ServerParams;
-
 use Symfony\Component\HttpFoundation\Request;
+
+use function class_exists;
 use function iterator_to_array;
 
 use const UPLOAD_ERR_CANT_WRITE;

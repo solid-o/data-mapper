@@ -26,7 +26,7 @@ class MappingResult implements MappingResultInterface
 
     public function getName(): string
     {
-        return (string) $this->form->getName();
+        return $this->form->getName();
     }
 
     /**
@@ -40,7 +40,7 @@ class MappingResult implements MappingResultInterface
 
         $this->children = [];
         foreach ($this->form->all() as $child) {
-            $this->children[] = new self($child);
+            $this->children[] = new self($child, $this->translator);
         }
 
         return $this->children;

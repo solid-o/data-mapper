@@ -10,6 +10,8 @@ use Symfony\Component\Form\RequestHandlerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 
+use function http_build_query;
+
 abstract class HttpFoundationRequestHandlerTest extends AbstractRequestHandlerTest
 {
     public function testRequestShouldBeInstanceOfRequest(): void

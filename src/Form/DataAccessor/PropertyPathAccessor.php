@@ -54,7 +54,8 @@ class PropertyPathAccessor implements DataAccessorInterface
 
         // If the field is of type DateTimeInterface and the data is the same skip the update to
         // keep the original object hash
-        if ($propertyValue instanceof DateTimeInterface && $propertyValue === $this->getPropertyValue($data, $propertyPath)) {
+        // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedEqualOperator
+        if ($propertyValue instanceof DateTimeInterface && $propertyValue == $this->getPropertyValue($data, $propertyPath)) {
             return;
         }
 

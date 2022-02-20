@@ -15,7 +15,6 @@ use function get_debug_type;
 use function is_array;
 use function is_object;
 use function is_scalar;
-use function Safe\array_replace;
 
 class OneWayDataMapper implements DataMapperInterface
 {
@@ -36,19 +35,15 @@ class OneWayDataMapper implements DataMapperInterface
     {
         assert($viewData === null || is_array($viewData) || is_object($viewData));
 
-        $empty = $viewData === null || $viewData === [];
-        if (! $empty && ! is_array($viewData) && ! is_object($viewData)) {
-            throw new UnexpectedTypeException($viewData, 'object, array or empty');
-        }
-
+        $viewData ??= [];
         foreach ($forms as $form) {
             $config = $form->getConfig();
 
-            if ($empty || ! $config->getMapped() || ! $this->dataAccessor->isReadable($viewData ?? [], $form)) {
-                $form->setData($config->getData());
-            } elseif ($config->getCompound()) {
-                $form->setData($this->dataAccessor->getValue($viewData ?? [], $form));
+            if (! $config->getCompound() || ! $this->dataAccessor->isReadable($viewData, $form)) {
+                continue;
             }
+
+            $form->setData($this->dataAccessor->getValue($viewData, $form));
         }
     }
 
@@ -87,12 +82,13 @@ class OneWayDataMapper implements DataMapperInterface
                 $this->dataAccessor->setValue($data, $form->getData(), $form);
             } catch (TransformationFailedException $e) { /* @phpstan-ignore-line */
                 $viewData = $form->getViewData();
-                $dataAsString = is_scalar($viewData) ? (string) $viewData : get_debug_type($viewData);
 
                 $form->addError(new FormError(
                     $config->getOption('invalid_message'),
                     $config->getOption('invalid_message'),
-                    array_replace(['{{ value }}' => $dataAsString], $config->getOption('invalid_message_parameters') ?? []),
+                    ($config->getOption('invalid_message_parameters') ?? []) + [
+                        '{{ value }}' => is_scalar($viewData) ? $viewData : get_debug_type($viewData),
+                    ],
                     null,
                     $e
                 ));

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Solido\DataMapper\Tests\Form;
 
@@ -15,9 +17,6 @@ class CollectionTypeTest extends TestCase
 
     private CollectionType $type;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function setUp(): void
     {
         $this->type = new CollectionType();
@@ -40,8 +39,7 @@ class CollectionTypeTest extends TestCase
                 'error_bubbling' => false,
             ])
             ->shouldBeCalled()
-            ->willReturn($resolver)
-        ;
+            ->willReturn($resolver);
 
         $this->type->configureOptions($resolver->reveal());
     }

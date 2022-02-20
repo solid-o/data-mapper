@@ -19,11 +19,15 @@
         "@default": true,
         "DecrementInteger": {
             "ignoreSourceCodeByRegex": [
+                "throw new*",
+                ".*int \\$code.*",
                 ".*json_decode.*"
             ]
         },
         "IncrementInteger": {
             "ignoreSourceCodeByRegex": [
+                "throw new*",
+                ".*int \\$code.*",
                 ".*json_decode.*"
             ]
         },

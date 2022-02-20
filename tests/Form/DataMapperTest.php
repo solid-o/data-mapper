@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Solido\DataMapper\Tests\Form;
 
+use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Solido\DataMapper\Exception\MappingErrorException;
 use Solido\DataMapper\Form\DataMapper;
-use PHPUnit\Framework\TestCase;
 use stdClass;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\RequestHandlerInterface;
@@ -17,14 +17,10 @@ class DataMapperTest extends TestCase
 {
     use ProphecyTrait;
 
-    /**
-     * @var ObjectProphecy|FormInterface
-     */
+    /** @var ObjectProphecy|FormInterface */
     private ObjectProphecy $form;
 
-    /**
-     * @var ObjectProphecy|RequestHandlerInterface
-     */
+    /** @var ObjectProphecy|RequestHandlerInterface */
     private ObjectProphecy $requestHandler;
     private DataMapper $mapper;
 
@@ -41,6 +37,17 @@ class DataMapperTest extends TestCase
         $request = new stdClass();
         $this->requestHandler->handleRequest($this->form, $request)->shouldBeCalled();
         $this->form->isSubmitted()->shouldBeCalled()->willReturn(true);
+        $this->form->isValid()->shouldBeCalled()->willReturn(true);
+
+        $this->mapper->map($request);
+    }
+
+    public function testShouldCallSubmitIfNotSubmitted(): void
+    {
+        $request = new stdClass();
+        $this->requestHandler->handleRequest($this->form, $request)->shouldBeCalled();
+        $this->form->isSubmitted()->shouldBeCalled()->willReturn(false);
+        $this->form->submit(null, true)->shouldBeCalled()->willReturn($this->form);
         $this->form->isValid()->shouldBeCalled()->willReturn(true);
 
         $this->mapper->map($request);

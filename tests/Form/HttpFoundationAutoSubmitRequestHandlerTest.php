@@ -118,7 +118,7 @@ class HttpFoundationAutoSubmitRequestHandlerTest extends HttpFoundationRequestHa
         $factory = $this->prophesize(AdapterFactory::class);
         $factory->createRequestAdapter(Argument::any())
             ->shouldBeCalled()
-            ->will(function ($args) {
+            ->will(static function ($args) {
                 return new SymfonyHttpFoundationRequestAdapter($args[0]);
             });
 
