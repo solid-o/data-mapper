@@ -38,7 +38,7 @@ class DataMapperFactory
             $this->formRequestHandler = new RequestHandler();
         }
 
-        return new Form\DataMapper($value, $this->formRequestHandler, $this->translator);
+        return new Form\DataMapper($value, $this->formRequestHandler, $this->translator ?? null);
     }
 
     /**
