@@ -9,6 +9,8 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function assert;
+
 class MappingResult implements MappingResultInterface
 {
     private FormInterface $form;
@@ -57,6 +59,7 @@ class MappingResult implements MappingResultInterface
 
         $this->errors = [];
         foreach ($this->form->getErrors(false, false) as $error) {
+            assert($error instanceof FormError);
             $this->errors[] = $this->getErrorMessage($error);
         }
 

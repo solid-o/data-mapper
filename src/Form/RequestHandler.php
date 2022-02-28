@@ -62,7 +62,7 @@ final class RequestHandler implements RequestHandlerInterface
         $adapter = $this->adapterFactory->createRequestAdapter($request);
 
         $name = $form->getName();
-        $method = $form->getConfig()->getMethod();
+        $method = $request->getMethod();
 
         // For request methods that must not have a request body we fetch data
         // from the query string. Otherwise we look for data in the request body.
