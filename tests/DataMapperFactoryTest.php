@@ -8,10 +8,13 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
+use Solido\BodyConverter\BodyConverterInterface;
+use Solido\Common\AdapterFactoryInterface;
 use Solido\DataMapper\DataMapperFactory;
 use Solido\DataMapper\Exception\MappingErrorException;
 use Solido\DataMapper\Form\DataMapper as FormDataMapper;
 use Solido\DataMapper\Form\OneWayDataMapper;
+use Solido\DataMapper\PropertyAccessor\DataMapper as PropertyAccessorMapper;
 use stdClass;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -20,6 +23,8 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\RequestHandlerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DataMapperFactoryTest extends TestCase
@@ -42,6 +47,10 @@ class DataMapperFactoryTest extends TestCase
         $this->factory->setFormFactory(($this->formFactory = $this->prophesize(FormFactoryInterface::class))->reveal());
         $this->factory->setFormRequestHandler(($this->requestHandler = $this->prophesize(RequestHandlerInterface::class))->reveal());
         $this->factory->setTranslator(($this->translator = $this->prophesize(TranslatorInterface::class))->reveal());
+        $this->factory->setAdapterFactory(($this->adapterFactory = $this->prophesize(AdapterFactoryInterface::class))->reveal());
+        $this->factory->setBodyConverter(($this->bodyConverter = $this->prophesize(BodyConverterInterface::class))->reveal());
+        $this->factory->setPropertyAccessor(($this->propertyAccessor = $this->prophesize(PropertyAccessorInterface::class))->reveal());
+        $this->factory->setValidator(($this->validator = $this->prophesize(ValidatorInterface::class))->reveal());
     }
 
     public function testCreateFormDataMapper(): void
@@ -86,6 +95,13 @@ class DataMapperFactoryTest extends TestCase
 
         $dataMapper = $this->factory->createFormBuilderMapper(FormType::class, $obj);
         self::assertInstanceOf(FormDataMapper::class, $dataMapper);
+    }
+
+    public function testCreatePropertyAccessorMapper(): void
+    {
+        $obj = new stdClass();
+        $dataMapper = $this->factory->createPropertyAccessorMapper($obj, []);
+        self::assertInstanceOf(PropertyAccessorMapper::class, $dataMapper);
     }
 }
 
