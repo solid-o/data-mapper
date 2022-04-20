@@ -9,14 +9,17 @@ use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Solido\DataMapper\DataMapperFactory;
+use Solido\DataMapper\Exception\MappingErrorException;
 use Solido\DataMapper\Form\DataMapper as FormDataMapper;
 use Solido\DataMapper\Form\OneWayDataMapper;
 use stdClass;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\RequestHandlerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DataMapperFactoryTest extends TestCase
@@ -44,9 +47,31 @@ class DataMapperFactoryTest extends TestCase
     public function testCreateFormDataMapper(): void
     {
         $form = $this->prophesize(FormInterface::class);
+        $form->isSubmitted()->willReturn(true);
+        $form->isValid()->willReturn(false);
+        $form->getErrors(false, false)->willReturn([new FormError('error')]);
+
+        $this->translator
+            ->trans('error', Argument::cetera())
+            ->shouldBeCalled()
+            ->willReturn('translated error');
 
         $dataMapper = $this->factory->createFormMapper($form->reveal());
         self::assertInstanceOf(FormDataMapper::class, $dataMapper);
+
+        $this->requestHandler
+            ->handleRequest(Argument::any(), $request = new Request())
+            ->shouldBeCalled();
+
+        $result = null;
+        try {
+            $dataMapper->map($request);
+        } catch (MappingErrorException $e) {
+            $result = $e->getResult();
+        }
+
+        self::assertNotNull($result);
+        self::assertEquals(['translated error'], $result->getErrors());
     }
 
     public function testCreateFormBuilderDataMapper(): void
@@ -63,3 +88,4 @@ class DataMapperFactoryTest extends TestCase
         self::assertInstanceOf(FormDataMapper::class, $dataMapper);
     }
 }
+
