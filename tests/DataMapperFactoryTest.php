@@ -19,6 +19,7 @@ use stdClass;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormErrorIterator;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\RequestHandlerInterface;
@@ -58,7 +59,7 @@ class DataMapperFactoryTest extends TestCase
         $form = $this->prophesize(FormInterface::class);
         $form->isSubmitted()->willReturn(true);
         $form->isValid()->willReturn(false);
-        $form->getErrors(false, false)->willReturn([new FormError('error')]);
+        $form->getErrors(false, false)->willReturn(new FormErrorIterator($form->reveal(), [new FormError('error')]));
 
         $this->translator
             ->trans('error', Argument::cetera())

@@ -253,7 +253,9 @@ class DataMapper implements DataMapperInterface
             $builder = Validation::createValidatorBuilder();
 
             if (class_exists(AnnotationReader::class)) {
-                $builder->enableAnnotationMapping();
+                $builder
+                    ->enableAnnotationMapping()
+                    ->addDefaultDoctrineAnnotationReader();
             }
 
             if (isset($this->translator)) {
