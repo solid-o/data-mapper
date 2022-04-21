@@ -19,7 +19,7 @@ class DataMapperFactory
 {
     private FormFactoryInterface $formFactory;
     private RequestHandlerInterface $formRequestHandler;
-    private ?TranslatorInterface $translator;
+    private ?TranslatorInterface $translator = null;
     private ?AdapterFactoryInterface $adapterFactory = null;
     private ?BodyConverterInterface $bodyConverter = null;
     private ?PropertyAccessorInterface $propertyAccessor = null;
