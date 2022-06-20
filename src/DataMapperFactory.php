@@ -8,8 +8,11 @@ use Solido\BodyConverter\BodyConverterInterface;
 use Solido\Common\AdapterFactoryInterface;
 use Solido\DataMapper\Form\OneWayDataMapper;
 use Solido\DataMapper\Form\RequestHandler;
+use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
+use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormRegistryInterface;
 use Symfony\Component\Form\RequestHandlerInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -17,6 +20,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DataMapperFactory
 {
+    private FormRegistryInterface $formRegistry;
     private FormFactoryInterface $formFactory;
     private RequestHandlerInterface $formRequestHandler;
     private ?TranslatorInterface $translator = null;
@@ -24,6 +28,16 @@ class DataMapperFactory
     private ?BodyConverterInterface $bodyConverter = null;
     private ?PropertyAccessorInterface $propertyAccessor = null;
     private ?ValidatorInterface $validator = null;
+
+    public function setFormRegistry(FormRegistryInterface $formRegistry): void
+    {
+        $this->formRegistry = $formRegistry;
+        if (isset($this->formFactory)) {
+            return;
+        }
+
+        $this->formFactory = new FormFactory($formRegistry);
+    }
 
     public function setFormFactory(FormFactoryInterface $formFactory): void
     {
@@ -75,7 +89,17 @@ class DataMapperFactory
      */
     public function createFormBuilderMapper(string $formType, $target, array $options = []): DataMapperInterface
     {
-        $builder = $this->formFactory->createNamedBuilder('', $formType, $target, $options);
+        $defaultOptions = [];
+        $formExtensions = $this->formRegistry->getExtensions();
+        foreach ($formExtensions as $extension) {
+            if (! $extension instanceof CsrfExtension) {
+                continue;
+            }
+
+            $defaultOptions['csrf_protection'] = false;
+        }
+
+        $builder = $this->formFactory->createNamedBuilder('', $formType, $target, $options + $defaultOptions);
         $builder->setDataMapper(new OneWayDataMapper());
 
         return $this->createFormMapper($builder->getForm());
