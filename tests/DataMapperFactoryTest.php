@@ -60,10 +60,10 @@ class DataMapperFactoryTest extends TestCase
         $this->factory->setFormFactory($this->formFactory->reveal());
         $this->factory->setFormRequestHandler(($this->requestHandler = $this->prophesize(RequestHandlerInterface::class))->reveal());
         $this->factory->setTranslator(($this->translator = $this->prophesize(TranslatorInterface::class))->reveal());
-        $this->factory->setAdapterFactory(($this->adapterFactory = $this->prophesize(AdapterFactoryInterface::class))->reveal());
-        $this->factory->setBodyConverter(($this->bodyConverter = $this->prophesize(BodyConverterInterface::class))->reveal());
-        $this->factory->setPropertyAccessor(($this->propertyAccessor = $this->prophesize(PropertyAccessorInterface::class))->reveal());
-        $this->factory->setValidator(($this->validator = $this->prophesize(ValidatorInterface::class))->reveal());
+        $this->factory->setAdapterFactory($this->prophesize(AdapterFactoryInterface::class)->reveal());
+        $this->factory->setBodyConverter($this->prophesize(BodyConverterInterface::class)->reveal());
+        $this->factory->setPropertyAccessor($this->prophesize(PropertyAccessorInterface::class)->reveal());
+        $this->factory->setValidator($this->prophesize(ValidatorInterface::class)->reveal());
     }
 
     public function testCreateFormDataMapper(): void

@@ -22,65 +22,60 @@ use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+use function array_combine;
 use function array_fill;
 use function array_key_first;
 use function array_map;
 use function array_pop;
 use function array_values;
 use function assert;
+use function boolval;
 use function class_exists;
 use function count;
 use function explode;
 use function intval;
 use function lcfirst;
 use function ltrim;
-use function Safe\array_combine;
 use function Safe\array_replace_recursive;
 use function Safe\ini_get;
 use function Safe\preg_replace;
-use function Safe\substr;
 use function str_replace;
 use function str_starts_with;
 use function strtolower;
+use function substr;
 use function trim;
 use function ucwords;
 
 class DataMapper implements DataMapperInterface
 {
     protected bool $allowExtraFields = false;
-    private object $target;
     /** @var array<string, bool> */
     private array $fields;
     /** @var array<string, bool> */
     private array $camelizedFields;
     private AdapterFactoryInterface $adapterFactory;
     private PropertyAccessorInterface $propertyAccessor;
-    private ?ValidatorInterface $validator;
-    private ?BodyConverterInterface $bodyConverter;
-    private ?TranslatorInterface $translator;
+    private BodyConverterInterface|null $bodyConverter;
+    private TranslatorInterface|null $translator;
 
-    /**
-     * @param string[] $fields
-     */
+    /** @param string[] $fields */
     public function __construct(
-        object $target,
+        private object $target,
         array $fields,
-        ?AdapterFactoryInterface $adapterFactory = null,
-        ?BodyConverterInterface $bodyConverter = null,
-        ?PropertyAccessorInterface $propertyAccessor = null,
-        ?ValidatorInterface $validator = null
+        AdapterFactoryInterface|null $adapterFactory = null,
+        BodyConverterInterface|null $bodyConverter = null,
+        PropertyAccessorInterface|null $propertyAccessor = null,
+        private ValidatorInterface|null $validator = null,
     ) {
         if ($bodyConverter === null && class_exists(BodyConverter::class)) {
             $bodyConverter = new BodyConverter();
         }
 
-        $this->target = $target;
         $this->fields = array_combine($fields, array_fill(0, count($fields), true));
-        $this->camelizedFields = array_combine(array_map([$this, 'camelize'], $fields), $fields);
+        $this->camelizedFields = array_combine(array_map([$this, 'camelize'], $fields), array_map(boolval(...), $fields));
         $this->adapterFactory = $adapterFactory ?? new AdapterFactory();
         $this->bodyConverter = $bodyConverter;
         $this->propertyAccessor = $propertyAccessor ?? PropertyAccess::createPropertyAccessor();
-        $this->validator = $validator;
     }
 
     public function setTranslator(TranslatorInterface $translator): void
@@ -107,7 +102,7 @@ class DataMapper implements DataMapperInterface
 
             try {
                 $this->propertyAccessor->setValue($this->target, $key, $propertyValue);
-            } catch (TransformationFailedException $e) { /* @phpstan-ignore-line */
+            } catch (TransformationFailedException) { /* @phpstan-ignore-line */
                 $errors['children'][$key]['name'] = $key;
                 $errors['children'][$key]['children'] = [];
                 $errors['children'][$key]['errors'][] = 'This value is not valid.';
@@ -158,9 +153,7 @@ class DataMapper implements DataMapperInterface
         }
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     protected function getData(object $request): array
     {
         $adapter = $this->adapterFactory->createRequestAdapter($request);
@@ -182,7 +175,7 @@ class DataMapper implements DataMapperInterface
                 throw new MappingErrorException(new MappingResult('', [], [$message]), 'Invalid data.');
             }
 
-            $params = $this->bodyConverter !== null ? $this->bodyConverter->decode($request) : $adapter->getRequestParams();
+            $params = $this->bodyConverter?->decode($request) ?? $adapter->getRequestParams();
             $files = $adapter->getAllFiles();
 
             $data = array_replace_recursive($params, $files);
@@ -209,11 +202,11 @@ class DataMapper implements DataMapperInterface
      *
      * @infection-ignore-all
      */
-    private static function getPostMaxSize(): ?int
+    private static function getPostMaxSize(): int|null
     {
         try {
             $iniMax = strtolower(trim(ini_get('post_max_size')));
-        } catch (InfoException $e) {
+        } catch (InfoException) {
             return null;
         }
 

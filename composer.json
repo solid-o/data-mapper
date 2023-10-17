@@ -19,25 +19,25 @@
         "csfix": "vendor/bin/phpcbf --standard=Solido src/"
     },
     "require": {
-        "php": "^7.4 || ^8.0",
-        "solido/common": "^0.3.1"
+        "php": "^8.1",
+        "solido/common": "^0.3 || ^0.4"
     },
     "require-dev": {
-        "doctrine/annotations": "^1.13",
+        "doctrine/annotations": "^1.13 || ^2.0",
         "nyholm/psr7": "^1.5",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpunit/phpunit": "^9.5",
         "psr/http-message": "^1.0",
         "roave/security-advisories": "dev-master",
-        "solido/body-converter": "^0.3.0",
-        "solido/data-transformers": "^0.3",
+        "solido/body-converter": "^0.3 || ^0.4",
+        "solido/data-transformers": "^0.3 || ^0.4",
         "solido/php-coding-standards": "dev-master",
-        "symfony/cache": "^4.4 || ^5.0 || ^6.0",
-        "symfony/form": "^4.4 || ^5.0 || ^6.0",
-        "symfony/http-foundation": "^4.4 || ^5.0 || ^6.0",
-        "symfony/security-csrf": "^4.4 || ^5.0 || ^6.0",
+        "symfony/cache": "^5.4 || ^6.0",
+        "symfony/form": "^5.4 || ^6.0",
+        "symfony/http-foundation": "^5.4 || ^6.0",
+        "symfony/security-csrf": "^5.4 || ^6.0",
         "symfony/translation-contracts": "*",
-        "symfony/validator": "^4.4 || ^5.0 || ^6.0"
+        "symfony/validator": "^5.4 || ^6.0"
     },
     "autoload": {
         "psr-4": {
@@ -57,7 +57,7 @@
         }
     },
     "archive": {
-        "exclude": [ ".gitignore", ".travis.yml", "tests" ]
+        "exclude": [ ".gitignore", ".github", "tests" ]
     },
     "extra": {
         "branch-alias": {

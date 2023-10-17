@@ -10,12 +10,13 @@ use Throwable;
 
 class MappingErrorException extends RuntimeException
 {
-    private MappingResultInterface $result;
-
-    public function __construct(MappingResultInterface $result, string $message = '', int $code = 0, ?Throwable $previous = null)
-    {
+    public function __construct(
+        private readonly MappingResultInterface $result,
+        string $message = '',
+        int $code = 0,
+        Throwable|null $previous = null,
+    ) {
         parent::__construct($message, $code, $previous);
-        $this->result = $result;
     }
 
     public function getResult(): MappingResultInterface

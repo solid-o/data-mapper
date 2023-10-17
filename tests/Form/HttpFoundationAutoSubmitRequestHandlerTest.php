@@ -100,7 +100,7 @@ class HttpFoundationAutoSubmitRequestHandlerTest extends HttpFoundationRequestHa
             ->shouldBeCalled()
             ->willReturn(['param1' => 'DATA']);
 
-        $handler = new RequestHandler($this->serverParams, null, $converter->reveal());
+        $handler = new RequestHandler($this->serverParams, bodyConverter: $converter->reveal());
         $form = $this->createForm('', 'POST', true);
         $form->add($this->createForm('param1'));
 

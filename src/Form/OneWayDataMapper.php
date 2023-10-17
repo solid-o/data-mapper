@@ -18,20 +18,17 @@ use function is_scalar;
 
 class OneWayDataMapper implements DataMapperInterface
 {
-    private DataAccessor\DataAccessorInterface $dataAccessor;
-
-    public function __construct(?DataAccessor\DataAccessorInterface $dataAccessor = null)
+    public function __construct(private readonly DataAccessor\DataAccessorInterface $dataAccessor = new DataAccessor\ChainAccessor([
+        new DataAccessor\CallbackAccessor(),
+        new DataAccessor\PropertyPathAccessor(),
+    ]),)
     {
-        $this->dataAccessor = $dataAccessor ?? new DataAccessor\ChainAccessor([
-            new DataAccessor\CallbackAccessor(),
-            new DataAccessor\PropertyPathAccessor(),
-        ]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function mapDataToForms($viewData, iterable $forms): void
+    public function mapDataToForms(mixed $viewData, iterable $forms): void
     {
         assert($viewData === null || is_array($viewData) || is_object($viewData));
 
@@ -50,14 +47,14 @@ class OneWayDataMapper implements DataMapperInterface
     /**
      * {@inheritdoc}
      */
-    public function mapFormsToData(iterable $forms, &$data): void
+    public function mapFormsToData(iterable $forms, mixed &$viewData): void
     {
-        if ($data === null) {
+        if ($viewData === null) {
             return;
         }
 
-        if (! is_array($data) && ! is_object($data)) {
-            throw new UnexpectedTypeException($data, 'object, array or empty');
+        if (! is_array($viewData) && ! is_object($viewData)) {
+            throw new UnexpectedTypeException($viewData, 'object, array or empty');
         }
 
         foreach ($forms as $form) {
@@ -65,7 +62,7 @@ class OneWayDataMapper implements DataMapperInterface
 
             // Write-back is disabled if the form is not synchronized (transformation failed),
             // if the form was not submitted and if the form is disabled (modification not allowed)
-            if (! $config->getMapped() || ! $form->isSubmitted() || ! $form->isSynchronized() || $form->isDisabled() || ! $this->dataAccessor->isWritable($data, $form)) {
+            if (! $config->getMapped() || ! $form->isSubmitted() || ! $form->isSynchronized() || $form->isDisabled() || ! $this->dataAccessor->isWritable($viewData, $form)) {
                 continue;
             }
 
@@ -74,23 +71,23 @@ class OneWayDataMapper implements DataMapperInterface
             // If the field is of type DateTimeInterface and the data is the same skip the update to
             // keep the original object hash
             // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedEqualOperator
-            if ($propertyValue instanceof DateTimeInterface && $propertyValue == $this->dataAccessor->getValue($data, $form)) {
+            if ($propertyValue instanceof DateTimeInterface && $propertyValue == $this->dataAccessor->getValue($viewData, $form)) {
                 continue;
             }
 
             try {
-                $this->dataAccessor->setValue($data, $form->getData(), $form);
+                $this->dataAccessor->setValue($viewData, $form->getData(), $form);
             } catch (TransformationFailedException $e) { /* @phpstan-ignore-line */
-                $viewData = $form->getViewData();
+                $data = $form->getViewData();
 
                 $form->addError(new FormError(
                     $config->getOption('invalid_message'),
                     $config->getOption('invalid_message'),
                     ($config->getOption('invalid_message_parameters') ?? []) + [
-                        '{{ value }}' => is_scalar($viewData) ? $viewData : get_debug_type($viewData),
+                        '{{ value }}' => is_scalar($data) ? $data : get_debug_type($data),
                     ],
                     null,
-                    $e
+                    $e,
                 ));
             }
         }

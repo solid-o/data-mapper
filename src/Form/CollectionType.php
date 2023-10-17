@@ -22,7 +22,7 @@ class CollectionType extends AbstractType
         ]);
     }
 
-    public function getParent(): ?string
+    public function getParent(): string|null
     {
         return BaseType::class;
     }

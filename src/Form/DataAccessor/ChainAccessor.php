@@ -9,25 +9,16 @@ use Symfony\Component\Form\FormInterface;
 
 class ChainAccessor implements DataAccessorInterface
 {
-    /** @var iterable<DataAccessorInterface> */
-    private iterable $accessors;
-
-    /**
-     * @param iterable<DataAccessorInterface> $accessors
-     */
-    public function __construct(iterable $accessors)
+    /** @param iterable<DataAccessorInterface> $accessors */
+    public function __construct(private readonly iterable $accessors)
     {
-        $this->accessors = $accessors;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getValue($data, FormInterface $form)
+    public function getValue(mixed $viewData, FormInterface $form): mixed
     {
         foreach ($this->accessors as $accessor) {
-            if ($accessor->isReadable($data, $form)) {
-                return $accessor->getValue($data, $form);
+            if ($accessor->isReadable($viewData, $form)) {
+                return $accessor->getValue($viewData, $form);
             }
         }
 
@@ -37,11 +28,11 @@ class ChainAccessor implements DataAccessorInterface
     /**
      * {@inheritdoc}
      */
-    public function setValue(&$data, $value, FormInterface $form): void
+    public function setValue(mixed &$viewData, $value, FormInterface $form): void
     {
         foreach ($this->accessors as $accessor) {
-            if ($accessor->isWritable($data, $form)) {
-                $accessor->setValue($data, $value, $form);
+            if ($accessor->isWritable($viewData, $form)) {
+                $accessor->setValue($viewData, $value, $form);
 
                 return;
             }
@@ -50,13 +41,10 @@ class ChainAccessor implements DataAccessorInterface
         throw new AccessException('Unable to write the given value as no accessor in the chain is able to set the data.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isReadable($data, FormInterface $form): bool
+    public function isReadable(mixed $viewData, FormInterface $form): bool
     {
         foreach ($this->accessors as $accessor) {
-            if ($accessor->isReadable($data, $form)) {
+            if ($accessor->isReadable($viewData, $form)) {
                 return true;
             }
         }
@@ -64,13 +52,10 @@ class ChainAccessor implements DataAccessorInterface
         return false;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isWritable($data, FormInterface $form): bool
+    public function isWritable(mixed $viewData, FormInterface $form): bool
     {
         foreach ($this->accessors as $accessor) {
-            if ($accessor->isWritable($data, $form)) {
+            if ($accessor->isWritable($viewData, $form)) {
                 return true;
             }
         }

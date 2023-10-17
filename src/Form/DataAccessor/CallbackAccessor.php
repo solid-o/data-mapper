@@ -15,10 +15,7 @@ use function is_callable;
  */
 class CallbackAccessor implements DataAccessorInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getValue($data, FormInterface $form)
+    public function getValue(mixed $viewData, FormInterface $form): mixed
     {
         $getter = $form->getConfig()->getOption('getter');
         if ($getter === null) {
@@ -27,13 +24,13 @@ class CallbackAccessor implements DataAccessorInterface
 
         assert(is_callable($getter));
 
-        return ($getter)($data, $form);
+        return ($getter)($viewData, $form);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setValue(&$data, $value, FormInterface $form): void
+    public function setValue(mixed &$viewData, $value, FormInterface $form): void
     {
         $setter = $form->getConfig()->getOption('setter');
         if ($setter === null) {
@@ -41,21 +38,15 @@ class CallbackAccessor implements DataAccessorInterface
         }
 
         assert(is_callable($setter));
-        ($setter)($data, $form->getData(), $form);
+        ($setter)($viewData, $form->getData(), $form);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isReadable($data, FormInterface $form): bool
+    public function isReadable(mixed $viewData, FormInterface $form): bool
     {
         return $form->getConfig()->getOption('getter') !== null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isWritable($data, FormInterface $form): bool
+    public function isWritable(mixed $viewData, FormInterface $form): bool
     {
         return $form->getConfig()->getOption('setter') !== null;
     }

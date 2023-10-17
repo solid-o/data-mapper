@@ -21,28 +21,22 @@ use function class_exists;
 use function get_debug_type;
 use function is_array;
 use function Safe\array_replace_recursive;
-use function Safe\sprintf;
+use function sprintf;
 
-/**
- * @internal
- */
+/** @internal */
 final class RequestHandler implements RequestHandlerInterface
 {
-    private ServerParams $serverParams;
-    private AdapterFactoryInterface $adapterFactory;
-    private ?BodyConverterInterface $bodyConverter;
+    private BodyConverterInterface|null $bodyConverter;
 
     public function __construct(
-        ?ServerParams $serverParams = null,
-        ?AdapterFactoryInterface $adapterFactory = null,
-        ?BodyConverterInterface $bodyConverter = null
+        private readonly ServerParams $serverParams = new ServerParams(),
+        private readonly AdapterFactoryInterface $adapterFactory = new AdapterFactory(),
+        BodyConverterInterface|null $bodyConverter = null,
     ) {
         if ($bodyConverter === null && class_exists(BodyConverter::class)) {
             $bodyConverter = new BodyConverter();
         }
 
-        $this->serverParams = $serverParams ?? new ServerParams();
-        $this->adapterFactory = $adapterFactory ?? new AdapterFactory();
         $this->bodyConverter = $bodyConverter;
     }
 
@@ -51,7 +45,7 @@ final class RequestHandler implements RequestHandlerInterface
      *
      * @param mixed $request
      */
-    public function handleRequest(FormInterface $form, $request = null): void
+    public function handleRequest(FormInterface $form, mixed $request = null): void
     {
         if ($request === null) {
             $request = Request::createFromGlobals();
@@ -92,15 +86,13 @@ final class RequestHandler implements RequestHandlerInterface
                 $form->addError(new FormError(
                     $maxSizeMessageFn(),
                     null,
-                    ['{{ max }}' => $this->serverParams->getNormalizedIniPostMaxSize()]
+                    ['{{ max }}' => $this->serverParams->getNormalizedIniPostMaxSize()],
                 ));
 
                 return;
             }
 
-            $params = $this->bodyConverter !== null
-                ? $this->bodyConverter->decode($request)
-                : $adapter->getRequestParams();
+            $params = $this->bodyConverter?->decode($request) ?? $adapter->getRequestParams();
 
             if ($name === '') {
                 $files = $adapter->getAllFiles();
@@ -110,7 +102,7 @@ final class RequestHandler implements RequestHandlerInterface
 
                 try {
                     $files = $adapter->getFile($name);
-                } catch (NonExistentFileException $e) {
+                } catch (NonExistentFileException) {
                     $files = $default;
                 }
             } else {
@@ -140,10 +132,8 @@ final class RequestHandler implements RequestHandlerInterface
 
     /**
      * Gets the upload file error from data.
-     *
-     * @param mixed $data
      */
-    public function getUploadFileError($data): ?int
+    public function getUploadFileError(mixed $data): int|null
     {
         return $this->adapterFactory->getUploadFileError($data);
     }

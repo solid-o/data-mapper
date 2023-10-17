@@ -15,18 +15,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class DataMapper implements DataMapperInterface
 {
-    private FormInterface $form;
-    private RequestHandlerInterface $requestHandler;
-    private ?TranslatorInterface $translator;
-
     public function __construct(
-        FormInterface $form,
-        ?RequestHandlerInterface $requestHandler = null,
-        ?TranslatorInterface $translator = null
+        private readonly FormInterface $form,
+        private readonly RequestHandlerInterface $requestHandler = new RequestHandler(),
+        private readonly TranslatorInterface|null $translator = null,
     ) {
-        $this->form = $form;
-        $this->requestHandler = $requestHandler ?? new RequestHandler();
-        $this->translator = $translator;
     }
 
     public function map(object $request): void

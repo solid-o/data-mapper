@@ -24,28 +24,22 @@ class PropertyPathAccessor implements DataAccessorInterface
 {
     private PropertyAccessorInterface $propertyAccessor;
 
-    public function __construct(?PropertyAccessorInterface $propertyAccessor = null)
+    public function __construct(PropertyAccessorInterface|null $propertyAccessor = null)
     {
         $this->propertyAccessor = $propertyAccessor ?? PropertyAccess::createPropertyAccessor();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getValue($data, FormInterface $form)
+    public function getValue(mixed $viewData, FormInterface $form): mixed
     {
         $propertyPath = $form->getPropertyPath();
         if ($propertyPath === null) {
             throw new AccessException('Unable to read from the given form data as no property path is defined.');
         }
 
-        return $this->getPropertyValue($data, $propertyPath);
+        return $this->getPropertyValue($viewData, $propertyPath);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setValue(&$data, $propertyValue, FormInterface $form): void
+    public function setValue(mixed &$viewData, mixed $value, FormInterface $form): void
     {
         $propertyPath = $form->getPropertyPath();
         if ($propertyPath === null) {
@@ -55,31 +49,25 @@ class PropertyPathAccessor implements DataAccessorInterface
         // If the field is of type DateTimeInterface and the data is the same skip the update to
         // keep the original object hash
         // phpcs:ignore SlevomatCodingStandard.Operators.DisallowEqualOperators.DisallowedEqualOperator
-        if ($propertyValue instanceof DateTimeInterface && $propertyValue == $this->getPropertyValue($data, $propertyPath)) {
+        if ($value instanceof DateTimeInterface && $value == $this->getPropertyValue($viewData, $propertyPath)) {
             return;
         }
 
         // If the data is identical to the value in $data, we are
         // dealing with a reference
-        if (is_object($data) && $form->getConfig()->getByReference() && $propertyValue === $this->getPropertyValue($data, $propertyPath)) {
+        if (is_object($viewData) && $form->getConfig()->getByReference() && $value === $this->getPropertyValue($viewData, $propertyPath)) {
             return;
         }
 
-        $this->propertyAccessor->setValue($data, $propertyPath, $propertyValue);
+        $this->propertyAccessor->setValue($viewData, $propertyPath, $value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isReadable($data, FormInterface $form): bool
+    public function isReadable(mixed $viewData, FormInterface $form): bool
     {
         return $form->getPropertyPath() !== null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isWritable($data, FormInterface $form): bool
+    public function isWritable(mixed $viewData, FormInterface $form): bool
     {
         return $form->getPropertyPath() !== null;
     }
@@ -88,11 +76,8 @@ class PropertyPathAccessor implements DataAccessorInterface
      * Returns the value at the end of the property path of the object graph.
      *
      * @param object|mixed[] $data
-     * @param string|PropertyPathInterface $propertyPath
-     *
-     * @return mixed
      */
-    private function getPropertyValue($data, $propertyPath)
+    private function getPropertyValue(object|array $data, string|PropertyPathInterface $propertyPath): mixed
     {
         try {
             return $this->propertyAccessor->getValue($data, $propertyPath);

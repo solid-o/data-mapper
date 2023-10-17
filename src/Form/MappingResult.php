@@ -13,17 +13,15 @@ use function assert;
 
 class MappingResult implements MappingResultInterface
 {
-    private FormInterface $form;
     /** @var self[] */
     private array $children;
     /** @var string[] */
     private array $errors;
-    private ?TranslatorInterface $translator;
 
-    public function __construct(FormInterface $form, ?TranslatorInterface $translator = null)
-    {
-        $this->form = $form;
-        $this->translator = $translator;
+    public function __construct(
+        private readonly FormInterface $form,
+        private readonly TranslatorInterface|null $translator = null,
+    ) {
     }
 
     public function getName(): string
@@ -31,9 +29,7 @@ class MappingResult implements MappingResultInterface
         return $this->form->getName();
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getChildren(): array
     {
         if (isset($this->children)) {
@@ -48,9 +44,7 @@ class MappingResult implements MappingResultInterface
         return $this->children;
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function getErrors(): array
     {
         if (isset($this->errors)) {
@@ -76,7 +70,7 @@ class MappingResult implements MappingResultInterface
             return $this->translator->trans(
                 $error->getMessageTemplate(),
                 ['%count%' => $error->getMessagePluralization()] + $error->getMessageParameters(),
-                'validators'
+                'validators',
             );
         }
 

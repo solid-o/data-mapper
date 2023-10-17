@@ -23,11 +23,11 @@ class DataMapperFactory
     private FormRegistryInterface $formRegistry;
     private FormFactoryInterface $formFactory;
     private RequestHandlerInterface $formRequestHandler;
-    private ?TranslatorInterface $translator = null;
-    private ?AdapterFactoryInterface $adapterFactory = null;
-    private ?BodyConverterInterface $bodyConverter = null;
-    private ?PropertyAccessorInterface $propertyAccessor = null;
-    private ?ValidatorInterface $validator = null;
+    private TranslatorInterface|null $translator = null;
+    private AdapterFactoryInterface|null $adapterFactory = null;
+    private BodyConverterInterface|null $bodyConverter = null;
+    private PropertyAccessorInterface|null $propertyAccessor = null;
+    private ValidatorInterface|null $validator = null;
 
     public function setFormRegistry(FormRegistryInterface $formRegistry): void
     {
@@ -49,27 +49,27 @@ class DataMapperFactory
         $this->formRequestHandler = $handler;
     }
 
-    public function setTranslator(?TranslatorInterface $translator): void
+    public function setTranslator(TranslatorInterface|null $translator): void
     {
         $this->translator = $translator;
     }
 
-    public function setAdapterFactory(?AdapterFactoryInterface $adapterFactory): void
+    public function setAdapterFactory(AdapterFactoryInterface|null $adapterFactory): void
     {
         $this->adapterFactory = $adapterFactory;
     }
 
-    public function setBodyConverter(?BodyConverterInterface $bodyConverter): void
+    public function setBodyConverter(BodyConverterInterface|null $bodyConverter): void
     {
         $this->bodyConverter = $bodyConverter;
     }
 
-    public function setPropertyAccessor(?PropertyAccessorInterface $propertyAccessor): void
+    public function setPropertyAccessor(PropertyAccessorInterface|null $propertyAccessor): void
     {
         $this->propertyAccessor = $propertyAccessor;
     }
 
-    public function setValidator(?ValidatorInterface $validator): void
+    public function setValidator(ValidatorInterface|null $validator): void
     {
         $this->validator = $validator;
     }
@@ -83,11 +83,8 @@ class DataMapperFactory
         return new Form\DataMapper($value, $this->formRequestHandler, $this->translator);
     }
 
-    /**
-     * @param mixed $target
-     * @param array<string, mixed> $options
-     */
-    public function createFormBuilderMapper(string $formType, $target, array $options = []): DataMapperInterface
+    /** @param array<string, mixed> $options */
+    public function createFormBuilderMapper(string $formType, mixed $target, array $options = []): DataMapperInterface
     {
         $defaultOptions = [];
         $formExtensions = $this->formRegistry->getExtensions();
@@ -105,9 +102,7 @@ class DataMapperFactory
         return $this->createFormMapper($builder->getForm());
     }
 
-    /**
-     * @param string[] $fields
-     */
+    /** @param string[] $fields */
     public function createPropertyAccessorMapper(object $target, array $fields): DataMapperInterface
     {
         return new PropertyAccessor\DataMapper(
@@ -116,7 +111,7 @@ class DataMapperFactory
             $this->adapterFactory,
             $this->bodyConverter,
             $this->propertyAccessor,
-            $this->validator
+            $this->validator,
         );
     }
 }
