@@ -41,7 +41,7 @@ final class RequestHandler implements RequestHandlerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @param mixed $request
      */
@@ -121,7 +121,7 @@ final class RequestHandler implements RequestHandlerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      *
      * @param mixed $data
      */

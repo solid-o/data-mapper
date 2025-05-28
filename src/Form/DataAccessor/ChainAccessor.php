@@ -26,7 +26,7 @@ class ChainAccessor implements DataAccessorInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function setValue(mixed &$viewData, $value, FormInterface $form): void
     {

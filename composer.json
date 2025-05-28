@@ -32,12 +32,12 @@
         "solido/body-converter": "^0.3 || ^0.4",
         "solido/data-transformers": "^0.3 || ^0.4",
         "solido/php-coding-standards": "dev-master",
-        "symfony/cache": "^5.4 || ^6.0",
-        "symfony/form": "^5.4 || ^6.0",
-        "symfony/http-foundation": "^5.4 || ^6.0",
-        "symfony/security-csrf": "^5.4 || ^6.0",
+        "symfony/cache": "^5.4 || ^6.0 || ^7.0",
+        "symfony/form": "^5.4 || ^6.0 || ^7.0",
+        "symfony/http-foundation": "^5.4 || ^6.0 || ^7.0",
+        "symfony/security-csrf": "^5.4 || ^6.0 || ^7.0",
         "symfony/translation-contracts": "*",
-        "symfony/validator": "^5.4 || ^6.0"
+        "symfony/validator": "^5.4 || ^6.0 || ^7.0"
     },
     "autoload": {
         "psr-4": {

@@ -8,7 +8,9 @@ use Solido\BodyConverter\BodyConverterInterface;
 use Solido\Common\AdapterFactoryInterface;
 use Solido\DataMapper\Form\OneWayDataMapper;
 use Solido\DataMapper\Form\RequestHandler;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Csrf\CsrfExtension;
+use Symfony\Component\Form\Extension\Csrf\Type\FormTypeCsrfExtension;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -88,12 +90,21 @@ class DataMapperFactory
     {
         $defaultOptions = [];
         $formExtensions = $this->formRegistry->getExtensions();
+
         foreach ($formExtensions as $extension) {
-            if (! $extension instanceof CsrfExtension) {
-                continue;
+            if ($extension instanceof CsrfExtension) {
+                $defaultOptions['csrf_protection'] = false;
+                break;
             }
 
-            $defaultOptions['csrf_protection'] = false;
+            foreach ($extension->getTypeExtensions(FormType::class) as $typeExtension) {
+                if (! $typeExtension instanceof FormTypeCsrfExtension) {
+                    continue;
+                }
+
+                $defaultOptions['csrf_protection'] = false;
+                break;
+            }
         }
 
         $builder = $this->formFactory->createNamedBuilder('', $formType, $target, $options + $defaultOptions);

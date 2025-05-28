@@ -17,7 +17,6 @@ use Solido\DataMapper\MappingResult;
 use Solido\DataTransformers\Exception\TransformationFailedException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
-use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -56,7 +55,7 @@ class DataMapper implements DataMapperInterface
     private AdapterFactoryInterface $adapterFactory;
     private PropertyAccessorInterface $propertyAccessor;
     private BodyConverterInterface|null $bodyConverter;
-    private TranslatorInterface|null $translator;
+    private TranslatorInterface $translator;
 
     /** @param string[] $fields */
     public function __construct(
@@ -101,7 +100,7 @@ class DataMapper implements DataMapperInterface
             }
 
             try {
-                $this->propertyAccessor->setValue($this->target, $key, $propertyValue);
+                $this->propertyAccessor->setValue($this->target, $key, $propertyValue); /** @phpstan-ignore-line */
             } catch (TransformationFailedException) { /* @phpstan-ignore-line */
                 $errors['children'][$key]['name'] = $key;
                 $errors['children'][$key]['children'] = [];
@@ -112,7 +111,6 @@ class DataMapper implements DataMapperInterface
 
         $violationList = $this->getValidator()->validate($this->target);
         foreach ($violationList as $violation) {
-            assert($violation instanceof ConstraintViolationInterface);
             $pathComponents = explode('.', $violation->getPropertyPath());
             $last = array_pop($pathComponents);
 

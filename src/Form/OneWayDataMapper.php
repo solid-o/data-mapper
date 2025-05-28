@@ -26,7 +26,7 @@ class OneWayDataMapper implements DataMapperInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function mapDataToForms(mixed $viewData, iterable $forms): void
     {
@@ -45,7 +45,7 @@ class OneWayDataMapper implements DataMapperInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function mapFormsToData(iterable $forms, mixed &$viewData): void
     {
