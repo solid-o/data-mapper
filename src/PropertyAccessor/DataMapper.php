@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Solido\DataMapper\PropertyAccessor;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Safe\Exceptions\InfoException;
 use Solido\BodyConverter\BodyConverter;
 use Solido\BodyConverter\BodyConverterInterface;
 use Solido\Common\AdapterFactory;
@@ -26,18 +25,17 @@ use function array_fill;
 use function array_key_first;
 use function array_map;
 use function array_pop;
+use function array_replace_recursive;
 use function array_values;
-use function assert;
 use function boolval;
 use function class_exists;
 use function count;
 use function explode;
+use function ini_get;
 use function intval;
 use function lcfirst;
 use function ltrim;
-use function Safe\array_replace_recursive;
-use function Safe\ini_get;
-use function Safe\preg_replace;
+use function preg_replace;
 use function str_replace;
 use function str_starts_with;
 use function strtolower;
@@ -202,12 +200,7 @@ class DataMapper implements DataMapperInterface
      */
     private static function getPostMaxSize(): int|null
     {
-        try {
-            $iniMax = strtolower(trim(ini_get('post_max_size')));
-        } catch (InfoException) {
-            return null;
-        }
-
+        $iniMax = strtolower(trim(ini_get('post_max_size') ?: ''));
         if ($iniMax === '') {
             return null;
         }

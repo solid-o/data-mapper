@@ -17,10 +17,10 @@ use Symfony\Component\Form\RequestHandlerInterface;
 use Symfony\Component\Form\Util\ServerParams;
 use Symfony\Component\HttpFoundation\Request;
 
+use function array_replace_recursive;
 use function class_exists;
 use function get_debug_type;
 use function is_array;
-use function Safe\array_replace_recursive;
 use function sprintf;
 
 /** @internal */

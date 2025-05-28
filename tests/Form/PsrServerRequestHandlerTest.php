@@ -12,7 +12,7 @@ use stdClass;
 use Symfony\Component\Form\RequestHandlerInterface;
 
 use function http_build_query;
-use function Safe\filesize;
+use function filesize;
 
 use const UPLOAD_ERR_OK;
 

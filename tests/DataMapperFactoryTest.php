@@ -100,7 +100,6 @@ class DataMapperFactoryTest extends TestCase
     {
         $this->formRegistry->getExtensions()->willReturn([
             new CoreExtension(),
-            new FormTypeHttpFoundationExtension(),
         ]);
 
         $obj = new stdClass();
