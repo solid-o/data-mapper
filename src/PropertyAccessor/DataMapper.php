@@ -34,6 +34,7 @@ use function explode;
 use function ini_get;
 use function intval;
 use function lcfirst;
+use function ltrim;
 use function preg_replace;
 use function str_replace;
 use function str_starts_with;

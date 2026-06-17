@@ -40,11 +40,6 @@ final class RequestHandler implements RequestHandlerInterface
         $this->bodyConverter = $bodyConverter;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param mixed $request
-     */
     public function handleRequest(FormInterface $form, mixed $request = null): void
     {
         if ($request === null) {
