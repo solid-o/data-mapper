@@ -9,9 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class FooClass
 {
-    /**
-     * @Assert\Valid()
-     */
+    #[Assert\Valid]
     public $notMappedChild;
 
     /** @var string */
@@ -19,21 +17,15 @@ class FooClass
     public $file;
     private $transformError = 'transformable_init';
 
-    /**
-     * @Assert\NotBlank()
-     */
+    #[Assert\NotBlank]
     private $privateBar = 'privateBar';
     private $notAccessibleBar = 'unreachableBar';
 
-    /**
-     * @Assert\NotBlank()
-     * @Assert\Regex("/[a-zA-Z]+/")
-     */
+    #[Assert\NotBlank]
+    #[Assert\Regex('/[a-zA-Z]+/')]
     public $validatable = 'validatable';
 
-    /**
-     * @Assert\Valid()
-     */
+    #[Assert\Valid]
     public $child;
 
     /**

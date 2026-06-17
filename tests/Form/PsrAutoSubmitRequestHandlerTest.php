@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\DataMapper\Tests\Form;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Solido\DataMapper\Form\RequestHandler;
 use Symfony\Component\Form\RequestHandlerInterface;
 
@@ -14,17 +15,13 @@ class PsrAutoSubmitRequestHandlerTest extends PsrServerRequestHandlerTest
         return new RequestHandler($this->serverParams);
     }
 
-    /**
-     * @dataProvider methodProvider
-     */
+    #[DataProvider("methodProvider")]
     public function testDoNotSubmitFormWithEmptyNameIfNoFieldInRequest($method): void
     {
         self::markTestSkipped('Not applicable to this request handler');
     }
 
-    /**
-     * @dataProvider methodProvider
-     */
+    #[DataProvider("methodProvider")]
     public function testDoSubmitFormWithEmptyNameIfNoFieldInRequest(string $method): void
     {
         $form = $this->createForm('', $method, true);

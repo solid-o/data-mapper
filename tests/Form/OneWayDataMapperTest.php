@@ -9,6 +9,7 @@ use DateTime;
 use DateTimeImmutable;
 use LogicException;
 use Prophecy\PhpUnit\ProphecyTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Solido\DataMapper\Form\CollectionType;
 use Solido\DataMapper\Form\DataAccessor\DataAccessorInterface;
 use Solido\DataMapper\Form\OneWayDataMapper;
@@ -356,9 +357,7 @@ class OneWayDataMapperTest extends TypeTestCase
         self::assertSame('BMW', $car->engine);
     }
 
-    /**
-     * @dataProvider provideDate
-     */
+    #[DataProvider("provideDate")]
     public function testMapFormsToDataDoesNotChangeEqualDateTimeInstance($date): void
     {
         $article = [];
@@ -378,7 +377,7 @@ class OneWayDataMapperTest extends TypeTestCase
         self::assertSame($publishedAtValue, $article['publishedAt']);
     }
 
-    public function provideDate(): array
+    public static function provideDate(): array
     {
         return [
             [new DateTime()],

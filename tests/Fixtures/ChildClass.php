@@ -7,14 +7,10 @@ namespace Solido\DataMapper\Tests\Fixtures;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-/**
- * @Assert\Callback("validateObject")
- */
+#[Assert\Callback('validateObject')]
 class ChildClass
 {
-    /**
-     * @Assert\Valid()
-     */
+    #[Assert\Valid]
     public $child;
     private bool $valid;
 

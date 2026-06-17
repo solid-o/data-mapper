@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Solido\DataMapper\PropertyAccessor;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Solido\BodyConverter\BodyConverter;
 use Solido\BodyConverter\BodyConverterInterface;
 use Solido\Common\AdapterFactory;
@@ -19,6 +18,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Throwable;
 
 use function array_combine;
 use function array_fill;
@@ -34,7 +34,6 @@ use function explode;
 use function ini_get;
 use function intval;
 use function lcfirst;
-use function ltrim;
 use function preg_replace;
 use function str_replace;
 use function str_starts_with;
@@ -98,8 +97,12 @@ class DataMapper implements DataMapperInterface
             }
 
             try {
-                $this->propertyAccessor->setValue($this->target, $key, $propertyValue); /** @phpstan-ignore-line */
-            } catch (TransformationFailedException) { /* @phpstan-ignore-line */
+                $this->propertyAccessor->setValue($this->target, $key, $propertyValue);
+            } catch (Throwable $e) {
+                if (! $e instanceof TransformationFailedException) {
+                    throw $e;
+                }
+
                 $errors['children'][$key]['name'] = $key;
                 $errors['children'][$key]['children'] = [];
                 $errors['children'][$key]['errors'][] = 'This value is not valid.';
@@ -122,15 +125,15 @@ class DataMapper implements DataMapperInterface
             $er = &$errors;
             foreach ($pathComponents as $component) {
                 $component = $this->snakeCase($component);
-                $er['children'][$component]['children'] ??= []; /* @phpstan-ignore-line */
-                $er['children'][$component]['errors'] ??= []; /* @phpstan-ignore-line */
+                $er['children'][$component]['children'] ??= [];
+                $er['children'][$component]['errors'] ??= [];
                 $er['children'][$component]['name'] = $component;
                 $er = &$er['children'][$component];
             }
 
             $last = $this->snakeCase($last);
             $er['children'][$last]['name'] = $last;
-            $er['children'][$last]['children'] ??= []; /* @phpstan-ignore-line */
+            $er['children'][$last]['children'] ??= [];
             $er['children'][$last]['errors'][] = $violation->getMessage();
             $hasError = true;
         }
@@ -236,11 +239,7 @@ class DataMapper implements DataMapperInterface
         return $this->validator ??= (function (): ValidatorInterface {
             $builder = Validation::createValidatorBuilder();
 
-            if (class_exists(AnnotationReader::class)) {
-                $builder
-                    ->enableAnnotationMapping()
-                    ->addDefaultDoctrineAnnotationReader();
-            }
+            $builder->enableAttributeMapping();
 
             if (isset($this->translator)) {
                 $builder->setTranslator($this->translator)
@@ -268,6 +267,11 @@ class DataMapper implements DataMapperInterface
      */
     private function snakeCase(string $string): string
     {
-        return strtolower(preg_replace('/[^A-Za-z0-9]++/', '_', preg_replace('/(?<=\\w)([A-Z])/u', '_$1', $string)));
+        $snakeCase = preg_replace('/(?<=\\w)([A-Z])/u', '_$1', $string);
+        $snakeCase ??= $string;
+        $snakeCase = preg_replace('/[^A-Za-z0-9]++/', '_', $snakeCase);
+        $snakeCase ??= $string;
+
+        return strtolower($snakeCase);
     }
 }

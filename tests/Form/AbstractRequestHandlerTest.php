@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Solido\DataMapper\Tests\Form;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -50,7 +51,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         $this->request = null;
     }
 
-    public function methodExceptGetProvider(): iterable
+    public static function methodExceptGetProvider(): iterable
     {
         yield ['POST'];
         yield ['PUT'];
@@ -58,15 +59,13 @@ abstract class AbstractRequestHandlerTest extends TestCase
         yield ['PATCH'];
     }
 
-    public function methodProvider(): iterable
+    public static function methodProvider(): iterable
     {
         yield ['GET'];
-        yield from $this->methodExceptGetProvider();
+        yield from self::methodExceptGetProvider();
     }
 
-    /**
-     * @dataProvider methodProvider
-     */
+    #[DataProvider("methodProvider")]
     public function testSubmitIfNameInRequest(string $method): void
     {
         $form = $this->createForm('param1', $method);
@@ -79,9 +78,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertSame('DATA', $form->getData());
     }
 
-    /**
-     * @dataProvider methodExceptGetProvider
-     */
+    #[DataProvider("methodExceptGetProvider")]
     public function testSubmitRegardlessOfTheRequestMethod(string $method): void
     {
         $form = $this->createForm('param1', $method);
@@ -93,9 +90,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertTrue($form->isSubmitted());
     }
 
-    /**
-     * @dataProvider methodExceptGetProvider
-     */
+    #[DataProvider("methodExceptGetProvider")]
     public function testDoNoSubmitSimpleFormIfNameNotInRequestAndNotGetRequest(string $method): void
     {
         $form = $this->createForm('param1', $method, false);
@@ -109,9 +104,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertFalse($form->isSubmitted());
     }
 
-    /**
-     * @dataProvider methodExceptGetProvider
-     */
+    #[DataProvider("methodExceptGetProvider")]
     public function testDoNotSubmitCompoundFormIfNameNotInRequestAndNotGetRequest(string $method): void
     {
         $form = $this->createForm('param1', $method, true);
@@ -138,9 +131,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertFalse($form->isSubmitted());
     }
 
-    /**
-     * @dataProvider methodProvider
-     */
+    #[DataProvider("methodProvider")]
     public function testSubmitFormWithEmptyNameIfAtLeastOneFieldInRequest($method): void
     {
         $form = $this->createForm('', $method, true);
@@ -167,9 +158,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertNull($form->get('param2')->getData());
     }
 
-    /**
-     * @dataProvider methodProvider
-     */
+    #[DataProvider("methodProvider")]
     public function testDoNotSubmitFormWithEmptyNameIfNoFieldInRequest(string $method): void
     {
         $form = $this->createForm('', $method, true);
@@ -183,9 +172,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertFalse($form->isSubmitted());
     }
 
-    /**
-     * @dataProvider methodExceptGetProvider
-     */
+    #[DataProvider("methodExceptGetProvider")]
     public function testMergeParamsAndFiles(string $method): void
     {
         $form = $this->createForm('param1', $method, true);
@@ -206,9 +193,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertSame($file, $form->get('field2')->getData());
     }
 
-    /**
-     * @dataProvider methodExceptGetProvider
-     */
+    #[DataProvider("methodExceptGetProvider")]
     public function testNoMergeParamsAndFiles(string $method): void
     {
         $form = $this->createForm('param1', $method, true);
@@ -227,9 +212,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertNull($form->get('field2')->getData());
     }
 
-    /**
-     * @dataProvider methodExceptGetProvider
-     */
+    #[DataProvider("methodExceptGetProvider")]
     public function testParamTakesPrecedenceOverFile(string $method): void
     {
         $form = $this->createForm('param1', $method);
@@ -243,9 +226,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertSame('DATA', $form->getData());
     }
 
-    /**
-     * @dataProvider methodExceptGetProvider
-     */
+    #[DataProvider("methodExceptGetProvider")]
     public function testSubmitFileIfNoParam(string $method): void
     {
         $form = $this->createBuilder('param1', false, ['allow_file_upload' => true])
@@ -261,9 +242,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertSame($file, $form->getData());
     }
 
-    /**
-     * @dataProvider methodExceptGetProvider
-     */
+    #[DataProvider("methodExceptGetProvider")]
     public function testSubmitMultipleFiles(string $method): void
     {
         $form = $this->createBuilder('param1', false, ['allow_file_upload' => true])
@@ -283,9 +262,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertSame($file, $form->getData());
     }
 
-    /**
-     * @dataProvider methodExceptGetProvider
-     */
+    #[DataProvider("methodExceptGetProvider")]
     public function testSubmitFileWithNamelessForm(string $method): void
     {
         $form = $this->createForm('', $method, true);
@@ -299,9 +276,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertSame($file, $fileForm->getData());
     }
 
-    /**
-     * @dataProvider getPostMaxSizeFixtures
-     */
+    #[DataProvider("getPostMaxSizeFixtures")]
     public function testAddFormErrorIfPostMaxSizeExceeded($contentLength, string $iniMax, bool $shouldFail, array $errorParams = []): void
     {
         $this->serverParams->expects(self::once())
@@ -331,7 +306,7 @@ abstract class AbstractRequestHandlerTest extends TestCase
         }
     }
 
-    public function getPostMaxSizeFixtures(): iterable
+    public static function getPostMaxSizeFixtures(): iterable
     {
         return [
             [(1024 ** 3) + 1, '1G', true, ['{{ max }}' => '1G']],
@@ -356,15 +331,13 @@ abstract class AbstractRequestHandlerTest extends TestCase
         self::assertFalse($this->requestHandler->isFileUpload($this->getInvalidFile()));
     }
 
-    /**
-     * @dataProvider uploadFileErrorCodes
-     */
+    #[DataProvider("uploadFileErrorCodes")]
     public function testFailedFileUploadIsTurnedIntoFormError(int $errorCode, ?int $expectedErrorCode): void
     {
         self::assertSame($expectedErrorCode, $this->requestHandler->getUploadFileError($this->getFailedUploadedFile($errorCode)));
     }
 
-    public function uploadFileErrorCodes(): iterable
+    public static function uploadFileErrorCodes(): iterable
     {
         yield 'no error' => [UPLOAD_ERR_OK, null];
         yield 'upload_max_filesize ini directive' => [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_INI_SIZE];

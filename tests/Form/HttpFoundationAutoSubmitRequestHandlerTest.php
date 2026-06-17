@@ -6,6 +6,7 @@ namespace Solido\DataMapper\Tests\Form;
 
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Solido\BodyConverter\BodyConverterInterface;
 use Solido\Common\AdapterFactory;
 use Solido\Common\RequestAdapter\SymfonyHttpFoundationRequestAdapter;
@@ -52,17 +53,13 @@ class HttpFoundationAutoSubmitRequestHandlerTest extends HttpFoundationRequestHa
         return new RequestHandler($this->serverParams);
     }
 
-    /**
-     * @dataProvider methodProvider
-     */
+    #[DataProvider("methodProvider")]
     public function testDoNotSubmitFormWithEmptyNameIfNoFieldInRequest($method): void
     {
         self::markTestSkipped('Not applicable to this request handler');
     }
 
-    /**
-     * @dataProvider methodProvider
-     */
+    #[DataProvider("methodProvider")]
     public function testDoSubmitFormWithEmptyNameIfNoFieldInRequest(string $method): void
     {
         $form = $this->createForm('', $method, true);
@@ -76,9 +73,7 @@ class HttpFoundationAutoSubmitRequestHandlerTest extends HttpFoundationRequestHa
         self::assertTrue($form->isSubmitted());
     }
 
-    /**
-     * @dataProvider methodProvider
-     */
+    #[DataProvider("methodProvider")]
     public function testDoSubmitFormWithNullRequest(string $method): void
     {
         $form = $this->createForm('', $method, true);
@@ -135,9 +130,7 @@ class HttpFoundationAutoSubmitRequestHandlerTest extends HttpFoundationRequestHa
         self::assertEquals('DATA', $form->get('param1')->getViewData());
     }
 
-    /**
-     * @dataProvider methodExceptGetProvider
-     */
+    #[DataProvider("methodExceptGetProvider")]
     public function testShouldConvertRequestContent(string $method): void
     {
         $form = $this->createForm('', $method, true);

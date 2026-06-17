@@ -6,11 +6,12 @@ namespace Solido\DataMapper\Tests\PropertyAccessor;
 
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 use Solido\Common\AdapterFactoryInterface;
 use Solido\Common\RequestAdapter\RequestAdapterInterface;
 use Solido\DataMapper\Exception\MappingErrorException;
 use Solido\DataMapper\PropertyAccessor\DataMapper;
-use PHPUnit\Framework\TestCase;
 use Solido\DataMapper\Tests\Fixtures\ChildClass;
 use Solido\DataMapper\Tests\Fixtures\FooClass;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
@@ -52,16 +53,14 @@ abstract class DataMapperTest extends TestCase
         self::assertEquals('test', $this->target->foobar);
     }
 
-    public function provideSafeMethods(): iterable
+    public static function provideSafeMethods(): iterable
     {
         yield ['GET'];
         yield ['HEAD'];
         yield ['TRACE'];
     }
 
-    /**
-     * @dataProvider provideSafeMethods
-     */
+    #[DataProvider("provideSafeMethods")]
     public function testShouldNotReportExtraFieldsOnGetRequests(string $method): void
     {
         $data = ['extra_foobar' => 'test1', 'foobar' => 'test', 'extra2' => 'test2'];
