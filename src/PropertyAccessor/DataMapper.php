@@ -21,7 +21,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
 use function array_combine;
-use function array_fill;
+use function array_fill_keys;
 use function array_key_first;
 use function array_map;
 use function array_pop;
@@ -29,7 +29,6 @@ use function array_replace_recursive;
 use function array_values;
 use function boolval;
 use function class_exists;
-use function count;
 use function explode;
 use function ini_get;
 use function intval;
@@ -68,7 +67,7 @@ class DataMapper implements DataMapperInterface
             $bodyConverter = new BodyConverter();
         }
 
-        $this->fields = array_combine($fields, array_fill(0, count($fields), true));
+        $this->fields = array_fill_keys($fields, true);
         $this->camelizedFields = array_combine(array_map([$this, 'camelize'], $fields), array_map(boolval(...), $fields));
         $this->adapterFactory = $adapterFactory ?? new AdapterFactory();
         $this->bodyConverter = $bodyConverter;
